@@ -56,16 +56,18 @@ function GoogleMapsAPIPractice() {
           center={center}
           options={options}
           onClick={(event) => {
-            setMarkers((prev) => {
-              return [
-                ...prev,
-                {
-                  lat: event.latLng.lat(),
-                  lng: event.latLng.lng(),
-                  time: new Date(),
-                },
-              ];
-            });
+            if (markers.length < 2) {
+              setMarkers((prev) => {
+                return [
+                  ...prev,
+                  {
+                    lat: event.latLng.lat(),
+                    lng: event.latLng.lng(),
+                    time: new Date(),
+                  },
+                ];
+              });
+            }
           }}
         >
           {markers.map((marker) => {
@@ -78,7 +80,7 @@ function GoogleMapsAPIPractice() {
           })}
         </GoogleMap>
       </div>
-      <ListOfMarkers positionsInfo={markers} />
+      {markers.length !== 0 && <ListOfMarkers positionsInfo={markers} />}
     </GoogleAPIMainPage>
   );
 }
