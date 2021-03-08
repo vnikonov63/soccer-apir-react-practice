@@ -1,16 +1,17 @@
 import React, { useState } from "react";
-import {
-  GoogleMap,
-  useLoadScript,
-  useJsApiLoader,
-} from "@react-google-maps/api";
+import { GoogleMap, useJsApiLoader, Marker } from "@react-google-maps/api";
+
+import { v4 as uuidv4 } from "uuid";
+import styled from "styled-components";
 
 import mapStyles from "./mapsStyles";
 
+import ListOfMarkers from "./ListOfMarkers";
+
 const libraries = ["places"];
 const mapContainerStyle = {
-  width: "100vw",
-  height: "100vh",
+  width: "80vw",
+  height: "80vh",
 };
 
 const center = {
@@ -23,6 +24,13 @@ const options = {
   disableDefaultUi: true,
   zoomControl: true,
 };
+
+const GoogleAPIMainPage = styled.div`
+  display: flex;
+  flex-direction: row;
+  padding: 50px;
+  margin: 100px;
+`;
 
 function GoogleMapsAPIPractice() {
   const { isLoaded, loadError } = useJsApiLoader({
@@ -40,26 +48,38 @@ function GoogleMapsAPIPractice() {
   }
 
   return (
-    <div>
-      <GoogleMap
-        mapContainerStyle={mapContainerStyle}
-        zoom={11}
-        center={center}
-        options={options}
-        onClick={(event) => {
-          setMarkers((prev) => {
-            return [
-              ...prev,
-              {
-                lat: event.latLng.lat(),
-                lng: event.latLng.lng(),
-                time: new Date(),
-              },
-            ];
-          });
-        }}
-      ></GoogleMap>
-    </div>
+    <GoogleAPIMainPage>
+      <div>
+        <GoogleMap
+          mapContainerStyle={mapContainerStyle}
+          zoom={11}
+          center={center}
+          options={options}
+          onClick={(event) => {
+            setMarkers((prev) => {
+              return [
+                ...prev,
+                {
+                  lat: event.latLng.lat(),
+                  lng: event.latLng.lng(),
+                  time: new Date(),
+                },
+              ];
+            });
+          }}
+        >
+          {markers.map((marker) => {
+            return (
+              <Marker
+                key={uuidv4()}
+                position={{ lat: marker.lat, lng: marker.lng }}
+              />
+            );
+          })}
+        </GoogleMap>
+      </div>
+      <ListOfMarkers positionsInfo={markers} />
+    </GoogleAPIMainPage>
   );
 }
 
