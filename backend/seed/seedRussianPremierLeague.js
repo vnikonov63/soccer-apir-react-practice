@@ -11,7 +11,7 @@ const db = mongoose.connect("mongodb://localhost:27017/GeoSoccerPlayground", {
   useCreateIndex: true,
 });
 
-const API_GET_SEASON_BUNDESLIGA = `https://soccer.sportmonks.com/api/v2.0/leagues/82?api_token=${process.env.SPORTMONKS_API_CODE}`;
+const API_GET_SEASON_BUNDESLIGA = `https://soccer.sportmonks.com/api/v2.0/leagues/486?api_token=${process.env.SPORTMONKS_API_CODE}`;
 async function getSeasonId() {
   try {
     const response = await axios.get(API_GET_SEASON_BUNDESLIGA);
@@ -33,6 +33,15 @@ async function getTeamsThisSeason(season_id) {
   }
 }
 
+async function fetchReverseGeolocation(positionInfo) {
+  const apiAdress = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${positionInfo.Latitude},${positionInfo.Longitude}&key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}`;
+  const response = await axios.get(apiAdress);
+  const humanReadable = response.data.results.find((adress) => {
+    return adress.types.includes("administrative_area_level_1");
+  });
+  return humanReadable.formatted_address;
+}
+
 async function getFormattedData() {
   const currentSeason = await getSeasonId();
   const teams = await getTeamsThisSeason(currentSeason);
@@ -50,15 +59,28 @@ async function getFormattedData() {
     };
   });
 
-  return teamsFiltered;
+  const getLocationsName = async () => {
+    return Promise.all(
+      teamsFiltered.map((team) => fetchReverseGeolocation(team.VenueLocation))
+    );
+  };
+
+  const locations = await getLocationsName();
+  const teamsFilteredFinal = teamsFiltered.map((team, index) => {
+    return {
+      ...team,
+      Region: locations[index],
+    };
+  });
+  return teamsFilteredFinal;
 }
 
 db.then(async () => {
   const formattedData = await getFormattedData();
   const finalData = {
-    LeagueName: "Bundesliga",
-    LeagueId: 82,
-    LeagueCountry: "Germany",
+    LeagueName: "Russian Premier League",
+    LeagueId: 486,
+    LeagueCountry: "Russia",
     Teams: formattedData,
   };
   const Bundesliga = new League(finalData).save();

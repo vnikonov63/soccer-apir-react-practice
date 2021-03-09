@@ -14,6 +14,7 @@ const Leagues = new mongoose.Schema({
         Latitude: Number,
         Longitude: Number,
       },
+      Region: String,
     },
   ],
 });
