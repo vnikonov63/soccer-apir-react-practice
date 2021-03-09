@@ -6,13 +6,15 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon index.js",
-    "start": "node index.js"
+    "start": "node index.js",
+    "seedBundesliga": "node ./seed/seedBundesliga.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "axios": "^0.21.1",
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "mongoose": "^5.11.19"
   },
   "devDependencies": {
     "nodemon": "^2.0.7"

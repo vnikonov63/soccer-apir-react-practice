@@ -1,13 +1,3 @@
-import express from "express";
-import mongoose from "mongoose";
-import axios from "axios";
-
-import Leagues from "./models/TeamsGeoTags.js";
-
-const app = express();
-
-const PORT = 3001;
-
 const db = mongoose.connect("mongodb://localhost:27017/GeoSoccerPlayground", {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -40,18 +30,4 @@ db.then(() => {
       },
     ],
   }).save();
-});
-
-app.use(express.json());
-
-app.get("/", (req, res) => {
-  res.send("Hello World");
-});
-
-app.post("/getTeams", (req, res) => {
-  console.log(req.body);
-});
-
-app.listen(PORT, () => {
-  console.log(`The server is running on port ${PORT}`);
 });
