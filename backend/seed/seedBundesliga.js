@@ -1,6 +1,7 @@
 import axios from "axios";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import League from "../models/TeamsGeoTags.js";
 
 dotenv.config();
 
@@ -14,7 +15,6 @@ const API_GET_SEASON_BUNDESLIGA = `https://soccer.sportmonks.com/api/v2.0/league
 async function getSeasonId() {
   try {
     const response = await axios.get(API_GET_SEASON_BUNDESLIGA);
-    console.log(response.data.data.current_season_id);
     return response.data.data.current_season_id;
   } catch (error) {
     console.error(error);
@@ -22,58 +22,44 @@ async function getSeasonId() {
 }
 
 function getAPIGetTeamsToken(season_id) {
-  return `https://soccer.sportmonks.com/api/v2.0/teams/season/${season_id}?api_token=${process.env.SPORTMONKS_API_CODE}`;
+  return `https://soccer.sportmonks.com/api/v2.0/teams/season/${season_id}?api_token=${process.env.SPORTMONKS_API_CODE}&include=venue`;
 }
 async function getTeamsThisSeason(season_id) {
   try {
     const response = await axios.get(getAPIGetTeamsToken(season_id));
-    console.log(response.data.data);
     return response.data.data;
   } catch (error) {
     console.error(error);
   }
 }
 
-function getAPIGetVenueToken(venue_id) {
-  return `https://soccer.sportmonks.com/api/v2.0/venues/${venue_id}?api_token=${process.env.SPORTMONKS_API_CODE}`;
-}
-async function getVenueInfo(venue_id) {
-  try {
-    const response = await axios.get(getAPIGetVenueToken(venue_id));
-    console.log(response.data.data.coordinates);
-    return response.data.data;
-  } catch (error) {
-    console.error(error);
-  }
-}
-getVenueInfo(2138);
+async function getFormattedData() {
+  const currentSeason = await getSeasonId();
+  const teams = await getTeamsThisSeason(currentSeason);
+  const teamsFiltered = teams.map((team) => {
+    const splitted = team.venue.data.coordinates.split(",");
+    return {
+      TeamName: team.name,
+      TeamId: team.id,
+      VenueId: team.venue_id,
+      VenueName: team.venue.data.name,
+      VenueLocation: {
+        Latitude: +splitted[0],
+        Longitude: +splitted[1],
+      },
+    };
+  });
 
-async function getFormattedData() {}
+  return teamsFiltered;
+}
 
-db.then(() => {
-  const leagues = new Leagues({
+db.then(async () => {
+  const formattedData = await getFormattedData();
+  const finalData = {
     LeagueName: "Bundesliga",
-    LeagueId: 1,
+    LeagueId: 82,
     LeagueCountry: "Germany",
-    Teams: [
-      {
-        TeamName: "Bavaria",
-        TeamId: 1,
-        VenueName: "Bavaria Stadium",
-        VenueLocation: {
-          Latitude: 53.555,
-          Longitude: 54.899,
-        },
-      },
-      {
-        TeamName: "Dortmund",
-        TeamId: 2,
-        VenueName: "Dortmund Stadium",
-        VenueLocation: {
-          Latitude: 59.555,
-          Longitude: 61.899,
-        },
-      },
-    ],
-  }).save();
+    Teams: formattedData,
+  };
+  const Bundesliga = new League(finalData).save();
 });

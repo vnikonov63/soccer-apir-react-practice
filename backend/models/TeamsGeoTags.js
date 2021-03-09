@@ -9,6 +9,7 @@ const Leagues = new mongoose.Schema({
       TeamName: String,
       TeamId: Number,
       VenueName: String,
+      VenueId: Number,
       VenueLocation: {
         Latitude: Number,
         Longitude: Number,
