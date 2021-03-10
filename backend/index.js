@@ -4,42 +4,17 @@ import axios from "axios";
 
 import Leagues from "./models/TeamsGeoTags.js";
 
+import fetchReverseGeolocation from "./externalAPIRequests/getHumanReadableAdress.js";
+
+
 const app = express();
 
 const PORT = 3001;
 
-const db = mongoose.connect("mongodb://localhost:27017/GeoSoccerPlayground", {
+mongoose.connect("mongodb://localhost:27017/GeoSoccerPlayground", {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   useCreateIndex: true,
-});
-
-db.then(() => {
-  const leagues = new Leagues({
-    LeagueName: "Bundesliga",
-    LeagueId: 1,
-    LeagueCountry: "Germany",
-    Teams: [
-      {
-        TeamName: "Bavaria",
-        TeamId: 1,
-        VenueName: "Bavaria Stadium",
-        VenueLocation: {
-          Latitude: 53.555,
-          Longitude: 54.899,
-        },
-      },
-      {
-        TeamName: "Dortmund",
-        TeamId: 2,
-        VenueName: "Dortmund Stadium",
-        VenueLocation: {
-          Latitude: 59.555,
-          Longitude: 61.899,
-        },
-      },
-    ],
-  }).save();
 });
 
 app.use(express.json());
@@ -48,8 +23,17 @@ app.get("/", (req, res) => {
   res.send("Hello World");
 });
 
-app.post("/getTeams", (req, res) => {
-  console.log(req.body);
+app.post("/getTeams", async (req, res) => {
+  try {
+    const humanAdress = await fetchReverseGeolocation(req.body);
+    const countryName = humanAdress.split(',')[1].trim();
+    const result = await Leagues.find({ LeagueCountry: countryName });
+    const teams = result[0].Teams;
+    res.json(teams);
+  }
+  catch (error) {
+    console.log(error);
+  }
 });
 
 app.listen(PORT, () => {
