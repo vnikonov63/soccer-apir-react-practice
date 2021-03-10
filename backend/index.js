@@ -25,6 +25,16 @@ app.get("/", (req, res) => {
   res.send("Hello World");
 });
 
+/*
+The idea is the following: if we currently support this region, given by the provided point -
+we proceed, otherwise we return an error. From the given Country league - we 
+find the teams in this "state, local region, administrative level 1 (level 2 in case of UK).
+If there are more than 3 of them we return straight away. If there are 0, 1, 2 of them we proceed.
+We find three teams, whoose stadium(venue) are closest to the provided coordinates.
+And we add (3 - numberOfTeamsInThisRegion) to the final return value from the API.
+2 - 1, 1 - 2, 0 - 3. And return the gotten information to the final User.
+*/
+
 app.post("/getTeams", async (req, res) => {
   try {
     // find the human adress
@@ -55,8 +65,33 @@ app.post("/getTeams", async (req, res) => {
     if (teamsThisRegion.length >= 3) {
       return res.status(200).json(teamsThisRegion);
     }
-    
+    // find the distance from the given Location to all pf the teams
+    const arrayDistances = teams.map((team, index) => {
+      const distanceInMeters = distanceGivenTwoPoints(req.body.Latitude, team.VenueLocation.Latitude,
+        req.body.Longitude, team.VenueLocation.Longitude);
+      return {
+        distance: distanceInMeters,
+        index: index
+        }
+    })
 
+    // sort the distances in ascending order
+    arrayDistances.sort((a, b) => {
+      return a.distance - b.distance;
+    });
+
+    // find three closest distances
+    const firstThreeDistance = arrayDistances.slice(0, 3);
+    
+    // find three closest teams
+    const closestThreeTeams = firstThreeDistance.map(({ index }) => {
+      return teams[index];
+    })
+    
+    // construct mega array and return only three as discused above in the description to
+    // the method
+    const finalResult = teamsThisRegion.concat(closestThreeTeams).slice(0, 3);
+    return res.status(200).json(finalResult);
   }
   catch (error) {
     console.log(error);
