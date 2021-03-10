@@ -12,4 +12,16 @@ async function fetchReverseGeolocation(positionInfo) {
   return humanReadable.formatted_address;
 }
 
-export default fetchReverseGeolocation;
+async function fetchReverseGeolocationEngland(positionInfo) {
+  const apiAdress = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${positionInfo.Latitude},${positionInfo.Longitude}&key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}`;
+  const response = await axios.get(apiAdress);
+  const humanReadable = response.data.results.find((adress) => {
+    return adress.types.includes("administrative_area_level_2");
+  });
+  return humanReadable.formatted_address;
+}
+
+export {
+  fetchReverseGeolocation,
+  fetchReverseGeolocationEngland
+}

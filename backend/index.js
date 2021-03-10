@@ -4,7 +4,9 @@ import axios from "axios";
 
 import Leagues from "./models/TeamsGeoTags.js";
 
-import fetchReverseGeolocation from "./externalAPIRequests/getHumanReadableAdress.js";
+import { fetchReverseGeolocation, fetchReverseGeolocationEngland } from "./externalAPIRequests/getHumanReadableAdress.js";
+
+import distanceGivenTwoPoints from "./externalAPIRequests/distanceGivenTwoPoints.js"
 
 
 const app = express();
@@ -25,11 +27,36 @@ app.get("/", (req, res) => {
 
 app.post("/getTeams", async (req, res) => {
   try {
-    const humanAdress = await fetchReverseGeolocation(req.body);
+    // find the human adress
+    let humanAdress = await fetchReverseGeolocation(req.body);
+    
     const countryName = humanAdress.split(',')[1].trim();
+
+    if (countryName == "UK") {
+      humanAdress = await fetchReverseGeolocationEngland(req.body);
+    }
+
+    // find all the teams from this country
+    // TODO: if find return empty have to send back an error
     const result = await Leagues.find({ LeagueCountry: countryName });
+    if (result.length === 0) {
+      return res.status(400).json({
+        message: "This region is currently not supported by this APi"
+      })
+    }
     const teams = result[0].Teams;
-    res.json(teams);
+
+
+    // find the teams from this region
+    const teamsThisRegion = teams.filter((team) => {
+      return team.Region == humanAdress;
+    })
+
+    if (teamsThisRegion.length >= 3) {
+      return res.status(200).json(teamsThisRegion);
+    }
+    
+
   }
   catch (error) {
     console.log(error);
