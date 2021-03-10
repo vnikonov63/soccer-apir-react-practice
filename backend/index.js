@@ -21,6 +21,12 @@ mongoose.connect("mongodb://localhost:27017/GeoSoccerPlayground", {
 
 app.use(express.json());
 
+app.use(function (request, res, next) {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', '*');
+  next();
+});
+
 app.get("/", (req, res) => {
   res.send("Hello World");
 });
@@ -47,7 +53,6 @@ app.post("/getTeams", async (req, res) => {
     }
 
     // find all the teams from this country
-    // TODO: if find return empty have to send back an error
     const result = await Leagues.find({ LeagueCountry: countryName });
     if (result.length === 0) {
       return res.status(400).json({

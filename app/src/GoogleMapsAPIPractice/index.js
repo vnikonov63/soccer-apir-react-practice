@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { GoogleMap, useJsApiLoader, Marker } from "@react-google-maps/api";
+import axios from "axios";
 
 import { v4 as uuidv4 } from "uuid";
 import styled from "styled-components";
@@ -52,22 +53,24 @@ function GoogleMapsAPIPractice() {
       <div>
         <GoogleMap
           mapContainerStyle={mapContainerStyle}
-          zoom={11}
+          zoom={4}
           center={center}
           options={options}
-          onClick={(event) => {
-            if (markers.length < 2) {
-              setMarkers((prev) => {
-                return [
-                  ...prev,
-                  {
-                    lat: event.latLng.lat(),
-                    lng: event.latLng.lng(),
-                    time: new Date(),
-                  },
-                ];
-              });
-            }
+          onClick={async (event) => {
+            const Latitude = event.latLng.lat()
+            const Longitude = event.latLng.lng()
+            const response = await axios({
+              method: 'post',
+              url: 'http://localhost:3001/getTeams',
+              headers: { 
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+              },
+              data: JSON.stringify(
+                {"Latitude":Latitude,"Longitude":Longitude}
+              )
+            })
+            console.log(response);
           }}
         >
           {markers.map((marker) => {
