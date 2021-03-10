@@ -7,7 +7,10 @@
   "scripts": {
     "dev": "nodemon index.js",
     "start": "node index.js",
-    "seedRussianLeague": "node ./seed/seedRussianPremierLeague.js"
+    "seedRussianLeague": "node ./seed/seedRussianPremierLeague.js",
+    "seedLaLiga": "node ./seed/seedLaLiga.js",
+    "seedPremierLeague": "node ./seed/seedPremierLeague.js",
+    "seedSerieA": "node ./seed/seedSerieA.js"
   },
   "author": "",
   "license": "ISC",

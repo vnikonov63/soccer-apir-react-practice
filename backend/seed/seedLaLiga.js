@@ -11,7 +11,7 @@ const db = mongoose.connect("mongodb://localhost:27017/GeoSoccerPlayground", {
   useCreateIndex: true,
 });
 
-const API_GET_SEASON_BUNDESLIGA = `https://soccer.sportmonks.com/api/v2.0/leagues/486?api_token=${process.env.SPORTMONKS_API_CODE}`;
+const API_GET_SEASON_BUNDESLIGA = `https://soccer.sportmonks.com/api/v2.0/leagues/564?api_token=${process.env.SPORTMONKS_API_CODE}`;
 async function getSeasonId() {
   try {
     const response = await axios.get(API_GET_SEASON_BUNDESLIGA);
@@ -61,7 +61,14 @@ async function getFormattedData() {
 
   const getLocationsName = async () => {
     return Promise.all(
-      teamsFiltered.map((team) => fetchReverseGeolocation(team.VenueLocation))
+      teamsFiltered.map((team) => {
+        try {
+          return fetchReverseGeolocation(team.VenueLocation);
+        } catch (error) {
+          console.error(error);
+          console.log(team);
+        }
+      })
     );
   };
 
@@ -78,10 +85,10 @@ async function getFormattedData() {
 db.then(async () => {
   const formattedData = await getFormattedData();
   const finalData = {
-    LeagueName: "Russian Premier League",
-    LeagueId: 486,
-    LeagueCountry: "Russia",
+    LeagueName: "La Liga",
+    LeagueId: 564,
+    LeagueCountry: "Spain",
     Teams: formattedData,
   };
-  const RussianLeague = new League(finalData).save();
+  const LaLiga = new League(finalData).save();
 });
