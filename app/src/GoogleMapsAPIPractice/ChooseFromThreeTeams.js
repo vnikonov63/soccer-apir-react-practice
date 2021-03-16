@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-function ChooseFromThreeTeams({ teams }) {
+function ChooseFromThreeTeams({ teams, setVisible, team1 }) {
   return (
     <div
       style={{
@@ -22,6 +22,10 @@ function ChooseFromThreeTeams({ teams }) {
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "center",
+              }}
+              onClick={() => {
+                team1(team);
+                setVisible(false);
               }}
             >
               <h2>{team.TeamName}</h2>
