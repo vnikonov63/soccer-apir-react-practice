@@ -48,6 +48,7 @@ async function getFormattedData() {
   const teamsFiltered = teams.map((team) => {
     const splitted = team.venue.data.coordinates.split(",");
     return {
+      Logo: team.logo_path,
       TeamName: team.name,
       TeamId: team.id,
       VenueId: team.venue_id,

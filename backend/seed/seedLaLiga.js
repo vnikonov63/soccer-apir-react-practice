@@ -2,7 +2,7 @@ import axios from "axios";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import League from "../models/TeamsGeoTags.js";
-import fetchReverseGeolocation from "../externalAPIRequests/getHumanReadableAdress.js"
+import { fetchReverseGeolocation } from "../externalAPIRequests/getHumanReadableAdress.js";
 
 dotenv.config();
 
@@ -34,13 +34,13 @@ async function getTeamsThisSeason(season_id) {
   }
 }
 
-
 async function getFormattedData() {
   const currentSeason = await getSeasonId();
   const teams = await getTeamsThisSeason(currentSeason);
   const teamsFiltered = teams.map((team) => {
     const splitted = team.venue.data.coordinates.split(",");
     return {
+      Logo: team.logo_path,
       TeamName: team.name,
       TeamId: team.id,
       VenueId: team.venue_id,

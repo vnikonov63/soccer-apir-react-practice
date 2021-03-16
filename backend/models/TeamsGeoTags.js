@@ -6,6 +6,7 @@ const Leagues = new mongoose.Schema({
   LeagueCountry: String,
   Teams: [
     {
+      Logo: String,
       TeamName: String,
       TeamId: Number,
       VenueName: String,

@@ -8,6 +8,7 @@ import styled from "styled-components";
 import mapStyles from "./mapsStyles";
 
 import ListOfMarkers from "./ListOfMarkers";
+import ChooseFromThreeTeams from "./ChooseFromThreeTeams";
 
 const libraries = ["places"];
 const mapContainerStyle = {
@@ -40,6 +41,12 @@ function GoogleMapsAPIPractice() {
   });
 
   const [markers, setMarkers] = useState([]);
+  const [teams1, setTeams1] = useState([]);
+  const [teams2, setTeams2] = useState([]);
+  const [teamCount, setTeamCount] = useState(0);
+  const [team1, setTeam1] = useState({});
+  const [team2, setTeam2] = useState({});
+  const [chosenPoint, setChosenPoint] = useState({});
 
   if (loadError) {
     return "Error loading map";
@@ -51,25 +58,35 @@ function GoogleMapsAPIPractice() {
   return (
     <GoogleAPIMainPage>
       <div>
+        {teamCount === 1 && <ChooseFromThreeTeams teams={teams1} />}
         <GoogleMap
           mapContainerStyle={mapContainerStyle}
           zoom={4}
           center={center}
           options={options}
           onClick={async (event) => {
-            const Latitude = event.latLng.lat()
-            const Longitude = event.latLng.lng()
+            if (teamCount >= 2) {
+              return;
+            }
+            const Latitude = event.latLng.lat();
+            const Longitude = event.latLng.lng();
             const response = await axios({
-              method: 'post',
-              url: 'http://localhost:3001/getTeams',
-              headers: { 
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
+              method: "post",
+              url: "http://localhost:3001/getTeams",
+              headers: {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*",
               },
-              data: JSON.stringify(
-                {"Latitude":Latitude,"Longitude":Longitude}
-              )
-            })
+              data: JSON.stringify({
+                Latitude: Latitude,
+                Longitude: Longitude,
+              }),
+            });
+            setTeamCount((prev) => {
+              return prev + 1;
+            });
+            setTeams1(response.data);
+            setChosenPoint({ Latitude: Latitude, Longitude: Longitude });
             console.log(response);
           }}
         >
@@ -81,9 +98,29 @@ function GoogleMapsAPIPractice() {
               />
             );
           })}
+          {teamCount === 1 &&
+            teams1.map((team) => {
+              return (
+                <Marker
+                  key={uuidv4()}
+                  position={{
+                    lat: team.VenueLocation.Latitude,
+                    lng: team.VenueLocation.Longitude,
+                  }}
+                />
+              );
+            })}
+          {(teamCount === 1 || teamCount === 2) && (
+            <Marker
+              key={uuidv4()}
+              position={{
+                lat: chosenPoint.Latitude,
+                lng: chosenPoint.Longitude,
+              }}
+            />
+          )}
         </GoogleMap>
       </div>
-      {markers.length !== 0 && <ListOfMarkers positionsInfo={markers} />}
     </GoogleAPIMainPage>
   );
 }
