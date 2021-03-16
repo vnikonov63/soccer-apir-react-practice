@@ -57,7 +57,7 @@ app.post("/getTeams", async (req, res) => {
     }
 
     // find all the teams from this country
-    const result = await Leagues.find({ LeagueCountry: countryName });
+    const result = await Leagues.find({ LeagueCountry: countryName }).lean();
     if (result.length === 0) {
       return res.status(400).json({
         message: "This region is currently not supported by this APi",
@@ -107,10 +107,22 @@ app.post("/getTeams", async (req, res) => {
       .filter((element, index) => {
         return finalResult.indexOf(element) === index;
       })
-      .slice(0, 3);
+      .slice(0, 3)
+      .map((team) => {
+        const distanceInMeters = distanceGivenTwoPoints(
+          req.body.Latitude,
+          team.VenueLocation.Latitude,
+          req.body.Longitude,
+          team.VenueLocation.Longitude
+        );
+        return {
+          ...team,
+          Distance: distanceInMeters,
+        };
+      });
     return res.status(200).json(mostFinalResult);
   } catch (error) {
-    console.log(error);
+    console.log("this is the error", error);
   }
 });
 

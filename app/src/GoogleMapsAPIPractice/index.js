@@ -1,5 +1,10 @@
 import React, { useState, useCallback } from "react";
-import { GoogleMap, useJsApiLoader, Marker } from "@react-google-maps/api";
+import {
+  GoogleMap,
+  useJsApiLoader,
+  Marker,
+  InfoWindow,
+} from "@react-google-maps/api";
 import axios from "axios";
 
 import { v4 as uuidv4 } from "uuid";
@@ -13,7 +18,7 @@ import ChooseFromThreeTeams from "./ChooseFromThreeTeams";
 const libraries = ["places"];
 const mapContainerStyle = {
   width: "80vw",
-  height: "80vh",
+  height: "65vh",
 };
 
 const center = {
@@ -30,8 +35,10 @@ const options = {
 const GoogleAPIMainPage = styled.div`
   display: flex;
   flex-direction: row;
-  padding: 50px;
-  margin: 100px;
+  justify-content: center;
+  align-items: center;
+  padding: 25px;
+  margin-bottom: 50px;
 `;
 
 function GoogleMapsAPIPractice() {
@@ -61,7 +68,7 @@ function GoogleMapsAPIPractice() {
         {teamCount === 1 && <ChooseFromThreeTeams teams={teams1} />}
         <GoogleMap
           mapContainerStyle={mapContainerStyle}
-          zoom={4}
+          zoom={3}
           center={center}
           options={options}
           onClick={async (event) => {
@@ -86,7 +93,10 @@ function GoogleMapsAPIPractice() {
               return prev + 1;
             });
             setTeams1(response.data);
-            setChosenPoint({ Latitude: Latitude, Longitude: Longitude });
+            setChosenPoint({
+              Latitude: event.latLng.lat(),
+              Longitude: event.latLng.lng(),
+            });
             console.log(response);
           }}
         >
@@ -101,21 +111,42 @@ function GoogleMapsAPIPractice() {
           {teamCount === 1 &&
             teams1.map((team) => {
               return (
-                <Marker
-                  key={uuidv4()}
-                  position={{
-                    lat: team.VenueLocation.Latitude,
-                    lng: team.VenueLocation.Longitude,
-                  }}
-                />
+                <>
+                  <Marker
+                    key={uuidv4()}
+                    icon={{
+                      url: team.Logo,
+                      scaledSize: new window.google.maps.Size(60, 60),
+                      origin: new window.google.maps.Point(0, 0),
+                      anchor: new window.google.maps.Point(15, 15),
+                    }}
+                    position={{
+                      lat: team.VenueLocation.Latitude,
+                      lng: team.VenueLocation.Longitude,
+                    }}
+                  />
+                  <InfoWindow
+                    position={{
+                      lat: team.VenueLocation.Latitude,
+                      lng: team.VenueLocation.Longitude,
+                    }}
+                  >
+                    <div>
+                      <h2>
+                        {Math.round(team.Distance)} meters away from provided
+                        point
+                      </h2>
+                    </div>
+                  </InfoWindow>
+                </>
               );
             })}
           {(teamCount === 1 || teamCount === 2) && (
             <Marker
               key={uuidv4()}
               position={{
-                lat: chosenPoint.Latitude,
-                lng: chosenPoint.Longitude,
+                lat: +chosenPoint.Latitude,
+                lng: +chosenPoint.Longitude,
               }}
             />
           )}
