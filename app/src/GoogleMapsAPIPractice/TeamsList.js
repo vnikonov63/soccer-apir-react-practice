@@ -1,6 +1,6 @@
 import React from "react";
 
-function TeamsList({ teams }) {
+function TeamsList({ teams, compare }) {
   return (
     <div
       style={{
@@ -32,7 +32,13 @@ function TeamsList({ teams }) {
         })}
       </div>
       {teams.length === 2 ? (
-        <button className="btn" style={{ width: "200px", height: "50px" }}>
+        <button
+          className="btn"
+          style={{ width: "200px", height: "50px" }}
+          onClick={() => {
+            compare(true);
+          }}
+        >
           Compare two teams
         </button>
       ) : null}

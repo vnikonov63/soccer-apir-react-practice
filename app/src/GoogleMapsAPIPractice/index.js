@@ -1,4 +1,5 @@
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
+
 import {
   GoogleMap,
   useJsApiLoader,
@@ -14,6 +15,7 @@ import mapStyles from "./mapsStyles";
 
 import ChooseFromThreeTeams from "./ChooseFromThreeTeams";
 import TeamsList from "./TeamsList";
+import CompareTeams from "./ComparissonTeams";
 
 const libraries = ["places"];
 const mapContainerStyle = {
@@ -54,6 +56,7 @@ function GoogleMapsAPIPractice() {
   const [chosenPoint, setChosenPoint] = useState({});
   const [visible, setVisible] = useState(false);
   const [error, setError] = useState(false);
+  const [showComparisson, setShowComparisson] = useState(false);
 
   if (loadError) {
     return "Error loading map";
@@ -64,8 +67,9 @@ function GoogleMapsAPIPractice() {
 
   return (
     <GoogleAPIMainPage>
-      {error && <h3>Sorry, but his region is not yet supported</h3>}
       <div>
+        {error && <h3>Sorry, but his region is not yet supported</h3>}
+
         {visible &&
           (teamCount === 1 ? (
             <ChooseFromThreeTeams
@@ -152,10 +156,7 @@ function GoogleMapsAPIPractice() {
                       }}
                     >
                       <div>
-                        <h4>
-                          {Math.round(team.Distance)} meters away from provided
-                          point
-                        </h4>
+                        <h4>{Math.round(team.Distance / 1000)} km away</h4>
                       </div>
                     </InfoWindow>
                   </>
@@ -171,8 +172,27 @@ function GoogleMapsAPIPractice() {
               }}
             />
           )}
+          {teams.length !== 0 &&
+            teams.map((team) => {
+              return (
+                <Marker
+                  key={uuidv4()}
+                  icon={{
+                    url: team.Logo,
+                    scaledSize: new window.google.maps.Size(60, 60),
+                  }}
+                  position={{
+                    lat: team.VenueLocation.Latitude,
+                    lng: team.VenueLocation.Longitude,
+                  }}
+                />
+              );
+            })}
         </GoogleMap>
-        {teams.length !== 0 && <TeamsList teams={teams} />}
+        {teams.length !== 0 && (
+          <TeamsList compare={setShowComparisson} teams={teams} />
+        )}
+        {showComparisson && <CompareTeams teams={teams} />}
       </div>
     </GoogleAPIMainPage>
   );
