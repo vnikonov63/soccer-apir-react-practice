@@ -13,16 +13,17 @@ import styled from "styled-components";
 import mapStyles from "./mapsStyles";
 
 import ChooseFromThreeTeams from "./ChooseFromThreeTeams";
+import TeamsList from "./TeamsList";
 
 const libraries = ["places"];
 const mapContainerStyle = {
   width: "80vw",
-  height: "65vh",
+  height: "55vh",
 };
 
 const center = {
-  lat: 53.241505,
-  lng: 50.221245,
+  lat: 50,
+  lng: 25,
 };
 
 const options = {
@@ -33,7 +34,7 @@ const options = {
 
 const GoogleAPIMainPage = styled.div`
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   padding: 25px;
@@ -49,10 +50,10 @@ function GoogleMapsAPIPractice() {
   const [teams1, setTeams1] = useState([]);
   const [teams2, setTeams2] = useState([]);
   const [teamCount, setTeamCount] = useState(0);
-  const [team1, setTeam1] = useState({});
-  const [team2, setTeam2] = useState({});
+  const [teams, setTeams] = useState([]);
   const [chosenPoint, setChosenPoint] = useState({});
   const [visible, setVisible] = useState(false);
+  const [error, setError] = useState(false);
 
   if (loadError) {
     return "Error loading map";
@@ -63,24 +64,25 @@ function GoogleMapsAPIPractice() {
 
   return (
     <GoogleAPIMainPage>
+      {error && <h3>Sorry, but his region is not yet supported</h3>}
       <div>
         {visible &&
           (teamCount === 1 ? (
             <ChooseFromThreeTeams
               teams={teams1}
               setVisible={setVisible}
-              team1={setTeam1}
+              teamSetter={setTeams}
             />
           ) : teamCount === 2 ? (
             <ChooseFromThreeTeams
               teams={teams2}
               setVisible={setVisible}
-              team1={setTeam2}
+              teamSetter={setTeams}
             />
           ) : null)}
         <GoogleMap
           mapContainerStyle={mapContainerStyle}
-          zoom={3}
+          zoom={4}
           center={center}
           options={options}
           onClick={async (event) => {
@@ -89,34 +91,40 @@ function GoogleMapsAPIPractice() {
             }
             const Latitude = event.latLng.lat();
             const Longitude = event.latLng.lng();
-            const response = await axios({
-              method: "post",
-              url: "http://localhost:3001/getTeams",
-              headers: {
-                "Content-Type": "application/json",
-                "Access-Control-Allow-Origin": "*",
-              },
-              data: JSON.stringify({
-                Latitude: Latitude,
-                Longitude: Longitude,
-              }),
-            });
-            if (teamCount === 0) {
-              setTeams1(response.data);
-            }
-            if (teamCount === 1) {
-              setTeams2(response.data);
-            }
-            setTeamCount((prev) => {
-              return prev + 1;
-            });
+            try {
+              const response = await axios({
+                method: "post",
+                url: "http://localhost:3001/getTeams",
+                headers: {
+                  "Content-Type": "application/json",
+                  "Access-Control-Allow-Origin": "*",
+                },
+                data: JSON.stringify({
+                  Latitude: Latitude,
+                  Longitude: Longitude,
+                }),
+              });
+              setError(false);
+              if (teamCount === 0) {
+                setTeams1(response.data);
+              }
+              if (teamCount === 1) {
+                setTeams2(response.data);
+              }
+              setTeamCount((prev) => {
+                return prev + 1;
+              });
 
-            setVisible(true);
-            setChosenPoint({
-              Latitude: event.latLng.lat(),
-              Longitude: event.latLng.lng(),
-            });
-            console.log(response);
+              setVisible(true);
+              setChosenPoint({
+                Latitude: event.latLng.lat(),
+                Longitude: event.latLng.lng(),
+              });
+              console.log(response);
+            } catch (error) {
+              setError(true);
+              return;
+            }
           }}
         >
           {visible &&
@@ -144,10 +152,10 @@ function GoogleMapsAPIPractice() {
                       }}
                     >
                       <div>
-                        <h2>
+                        <h4>
                           {Math.round(team.Distance)} meters away from provided
                           point
-                        </h2>
+                        </h4>
                       </div>
                     </InfoWindow>
                   </>
@@ -164,6 +172,7 @@ function GoogleMapsAPIPractice() {
             />
           )}
         </GoogleMap>
+        {teams.length !== 0 && <TeamsList teams={teams} />}
       </div>
     </GoogleAPIMainPage>
   );

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-function ChooseFromThreeTeams({ teams, setVisible, team1 }) {
+function ChooseFromThreeTeams({ teams, setVisible, teamSetter }) {
   return (
     <div
       style={{
@@ -14,22 +14,28 @@ function ChooseFromThreeTeams({ teams, setVisible, team1 }) {
         {teams.map((team) => {
           return (
             <div
+              className="card"
               style={{
-                border: "2px solid black",
-                borderRadius: "10px",
                 padding: "15px",
-                margin: "15px",
                 display: "flex",
                 flexDirection: "column",
-                justifyContent: "center",
+                alignItems: "center",
               }}
               onClick={() => {
-                team1(team);
+                teamSetter((prev) => {
+                  return [...prev, team];
+                });
                 setVisible(false);
               }}
             >
+              <div className="card-image">
+                <img
+                  style={{ width: "150px", height: "150px" }}
+                  alt={"team-logo"}
+                  src={team.Logo}
+                />
+              </div>
               <h2>{team.TeamName}</h2>
-              <img src={team.Logo} />
             </div>
           );
         })}

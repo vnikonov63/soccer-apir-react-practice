@@ -71,7 +71,19 @@ app.post("/getTeams", async (req, res) => {
     });
 
     if (teamsThisRegion.length >= 3) {
-      return res.status(200).json(teamsThisRegion);
+      const resultThisRegion = teamsThisRegion.map((team) => {
+        const distanceInMeters = distanceGivenTwoPoints(
+          req.body.Latitude,
+          team.VenueLocation.Latitude,
+          req.body.Longitude,
+          team.VenueLocation.Longitude
+        );
+        return {
+          ...team,
+          Distance: distanceInMeters,
+        };
+      });
+      return res.status(200).json(resultThisRegion);
     }
     // find the distance from the given Location to all pf the teams
     const arrayDistances = teams.map((team, index) => {
@@ -120,6 +132,7 @@ app.post("/getTeams", async (req, res) => {
           Distance: distanceInMeters,
         };
       });
+    //console.log(mostFinalResult);
     return res.status(200).json(mostFinalResult);
   } catch (error) {
     console.log("this is the error", error);
