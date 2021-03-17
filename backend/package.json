@@ -10,7 +10,13 @@
     "seedRussianLeague": "node ./seed/seedRussianPremierLeague.js",
     "seedLaLiga": "node ./seed/seedLaLiga.js",
     "seedPremierLeague": "node ./seed/seedPremierLeague.js",
-    "seedSerieA": "node ./seed/seedSerieA.js"
+    "seedSerieA": "node ./seed/seedSerieA.js",
+    "seedPremeira": "node ./seed/seedPremeiraLeague.js",
+    "seedLigue1": "node ./seed/seedLigue1.js",
+    "seedBundesLiga": "node ./seed/seedBundesLiga.js",
+    "seedEredivisie": "node ./seed/seedEredivise.js",
+    "seedProLeague": "node ./seed/seedProLeague.js",
+    "seedTipicoBundesLiga": "node ./seed/seedTipicoBundesLiga.js"
   },
   "author": "",
   "license": "ISC",

@@ -67,6 +67,23 @@ function GoogleMapsAPIPractice() {
 
   return (
     <GoogleAPIMainPage>
+      {teamCount === 2 && (
+        <button
+          style={{
+            margin: "20px",
+          }}
+          class="btn red"
+          onClick={() => {
+            setTeams([]);
+            setTeams2([]);
+            setTeamCount(0);
+            setChosenPoint({});
+            setVisible(false);
+          }}
+        >
+          Reset
+        </button>
+      )}
       <div>
         {error && <h3>Sorry, but his region is not yet supported</h3>}
 
@@ -192,7 +209,9 @@ function GoogleMapsAPIPractice() {
         {teams.length !== 0 && (
           <TeamsList compare={setShowComparisson} teams={teams} />
         )}
-        {showComparisson && <CompareTeams teams={teams} />}
+        {showComparisson && (
+          <CompareTeams teams={teams} reset={setShowComparisson} />
+        )}
       </div>
     </GoogleAPIMainPage>
   );
