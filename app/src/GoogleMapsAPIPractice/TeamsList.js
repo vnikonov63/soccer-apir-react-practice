@@ -7,9 +7,30 @@ function TeamsList({ teams, compare }) {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
+        justifyContent: "center",
+        margin: "20px",
       }}
     >
-      <h2>Your chosen Teams</h2>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-around",
+        }}
+      >
+        {teams.length === 2 ? (
+          <button
+            className="btn"
+            style={{ width: "200px", height: "50px", marginRight: "30px" }}
+            onClick={() => {
+              compare(true);
+            }}
+          >
+            Compare
+          </button>
+        ) : null}
+        <h2 style={{ margin: "0px" }}>Your chosen Teams</h2>
+      </div>
       <div style={{ display: "flex", justifyContent: "space-around" }}>
         {teams.map((team) => {
           return (
@@ -22,7 +43,6 @@ function TeamsList({ teams, compare }) {
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
-                justifyContent: "center",
               }}
             >
               <h2>{team.TeamName}</h2>
@@ -31,17 +51,6 @@ function TeamsList({ teams, compare }) {
           );
         })}
       </div>
-      {teams.length === 2 ? (
-        <button
-          className="btn"
-          style={{ width: "200px", height: "50px" }}
-          onClick={() => {
-            compare(true);
-          }}
-        >
-          Compare two teams
-        </button>
-      ) : null}
     </div>
   );
 }

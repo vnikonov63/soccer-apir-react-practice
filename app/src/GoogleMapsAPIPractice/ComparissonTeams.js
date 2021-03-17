@@ -1,8 +1,32 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { set } from "mongoose";
 
-export default function ComparissonTeams({ teams }) {
+const OVERLAY_STYLES = {
+  position: "fixed",
+  top: 0,
+  right: 0,
+  left: 0,
+  bottom: 0,
+  backgroundColor: "rgba(0, 0, 0, .6)",
+  zIndex: 1000,
+};
+
+const MODAL_STYLES = {
+  position: "fixed",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  backgroundColor: "#FFF",
+  padding: "50px",
+  zIndex: 1000,
+  height: "60%",
+  width: "60%",
+  display: "flex",
+  flexDirection: "column",
+  overflow: "scroll",
+};
+
+export default function ComparissonTeams({ teams, reset }) {
   const [games, setGames] = useState([]);
   const [team1Stats, setTeam1Stats] = useState([]);
   const [team2Stats, setTeam2Stats] = useState([]);
@@ -73,54 +97,64 @@ export default function ComparissonTeams({ teams }) {
   }, []);
   return (
     <>
-      <div>
-        <button className="btn red">Reset</button>
-      </div>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "space-around",
-          alignItems: "center",
-        }}
-      >
+      <div style={OVERLAY_STYLES}></div>
+      <div style={MODAL_STYLES}>
+        <div>
+          <button
+            className="btn red"
+            onClick={() => {
+              reset(false);
+            }}
+          >
+            Close
+          </button>
+        </div>
         <div
           style={{
             display: "flex",
+            flexDirection: "column",
             justifyContent: "space-around",
+            alignItems: "center",
           }}
         >
-          {team1Stats.length !== 0 && (
-            <DisplayTeam
-              teamLogo={teams[0].Logo}
-              teamStats={team1Stats}
-              teamName={teams[0].TeamName}
-            />
-          )}
-          <div style={{ width: "100px" }}></div>
-          {team2Stats.length !== 0 && (
-            <DisplayTeam
-              teamLogo={teams[1].Logo}
-              teamStats={team2Stats}
-              teamName={teams[1].TeamName}
-            />
-          )}
-        </div>
-        <h2>List of Previous Games</h2>
-        {games.length !== 0 &&
-          games.map((game) => {
-            return (
-              <Game
-                localTeam={game.localTeam}
-                visitorTeam={game.visitorTeam}
-                localTeamScore={game.localTeamScore}
-                visitorTeamScore={game.visitorTeamScore}
-                localTeamLogo={game.localTeamLogo}
-                visitorTeamLogo={game.visitorTeamLogo}
-                date={game.date}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-around",
+            }}
+          >
+            {team1Stats.length !== 0 && (
+              <DisplayTeam
+                teamLogo={teams[0].Logo}
+                teamStats={team1Stats}
+                teamName={teams[0].TeamName}
               />
-            );
-          })}
+            )}
+            <div style={{ width: "100px" }}></div>
+            {team2Stats.length !== 0 && (
+              <DisplayTeam
+                teamLogo={teams[1].Logo}
+                teamStats={team2Stats}
+                teamName={teams[1].TeamName}
+              />
+            )}
+          </div>
+          <h2>List of Previous Games</h2>
+          {games.length !== 0 &&
+            games.map((game) => {
+              return (
+                <Game
+                  localTeam={game.localTeam}
+                  visitorTeam={game.visitorTeam}
+                  localTeamScore={game.localTeamScore}
+                  visitorTeamScore={game.visitorTeamScore}
+                  localTeamLogo={game.localTeamLogo}
+                  visitorTeamLogo={game.visitorTeamLogo}
+                  date={game.date}
+                />
+              );
+            })}
+        </div>
       </div>
     </>
   );
@@ -130,10 +164,10 @@ function CircleComponent({ color }) {
   return (
     <div
       style={{
-        width: "30px",
-        height: "30px",
+        width: "20px",
+        height: "20px",
         borderRadius: "50",
-        margin: "10px",
+        margin: "5px",
         backgroundColor:
           color === "win" ? "green" : color === "loss" ? "red" : "yellow",
       }}
@@ -155,8 +189,8 @@ function DisplayTeam({ teamLogo, teamStats, teamName }) {
         alt={"Team Logo"}
         src={teamLogo}
         style={{
-          width: "200px",
-          height: "200px",
+          width: "100px",
+          height: "100px",
         }}
       />
       <div
@@ -173,8 +207,6 @@ function DisplayTeam({ teamLogo, teamStats, teamName }) {
 }
 
 function Game({
-  localTeam,
-  visitorTeam,
   localTeamScore,
   visitorTeamScore,
   localTeamLogo,
@@ -182,25 +214,25 @@ function Game({
   date,
 }) {
   return (
-    <div style={{ display: "flex", margin: "20px" }}>
-      <div style={{ display: "flex" }}>
+    <div style={{ display: "flex", margin: "20px", alignItems: "center" }}>
+      <div style={{ display: "flex", alignItems: "center" }}>
         <img
-          style={{ width: "100px", height: "100px", marginRight: "100px" }}
+          style={{ width: "50px", height: "50px", marginRight: "50px" }}
           alt={"local team logo"}
           src={localTeamLogo}
         />
         <h3>{localTeamScore}</h3>
       </div>
-      <div style={{ width: "75px" }}></div>
-      <div style={{ display: "flex" }}>
+      <div style={{ width: "25px" }}></div>
+      <div style={{ display: "flex", alignItems: "center" }}>
         <h3>{visitorTeamScore}</h3>
         <img
-          style={{ width: "100px", height: "100px", marginLeft: "100px" }}
+          style={{ width: "50px", height: "50px", marginLeft: "50px" }}
           alt={"visitor team logo"}
           src={visitorTeamLogo}
         />
       </div>
-      <h3 style={{ marginLeft: "75px" }}>{date}</h3>
+      <h4 style={{ marginLeft: "25px" }}>{date}</h4>
     </div>
   );
 }
