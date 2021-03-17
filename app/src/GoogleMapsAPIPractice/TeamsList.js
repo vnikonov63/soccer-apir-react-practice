@@ -46,7 +46,14 @@ function TeamsList({ teams, compare }) {
               }}
             >
               <h2>{team.TeamName}</h2>
-              <img alt={"team logo"} src={team.Logo} />
+              <img
+                alt={"team logo"}
+                style={{
+                  width: "200px",
+                  height: "200px",
+                }}
+                src={team.Logo}
+              />
             </div>
           );
         })}
