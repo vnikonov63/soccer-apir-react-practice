@@ -28,6 +28,7 @@ You can choose a team of interest.
 You can compare two teams and get info about their last games.
 * ![Compare two teams](https://i.ibb.co/b655jDv/ezgif-6-96cb35c80b3b.gif)
 
+* Also I have recorder a You Tube video about this project https://www.youtube.com/watch?v=0WDqF_FbZFM&t=62s
 ## Technologies used
 * MongoDb - DataBase
 * React - Frontend
