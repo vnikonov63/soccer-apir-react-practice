@@ -30,6 +30,7 @@ export default function ComparissonTeams({ teams, reset }) {
   const [games, setGames] = useState([]);
   const [team1Stats, setTeam1Stats] = useState([]);
   const [team2Stats, setTeam2Stats] = useState([]);
+  const [error, setError] = useState(false);
   useEffect(() => {
     async function getTeamsInfo() {
       const team1Id = teams[0].TeamId;
@@ -39,6 +40,10 @@ export default function ComparissonTeams({ teams, reset }) {
         const response = await axios.get(apiAdress);
         console.log(response);
         const information = response.data.data;
+        if (information.length === 0) {
+          setError(true);
+          return;
+        }
         information.slice(0, 10).map((game) => {
           if (!game.winner_team_id) {
             setTeam1Stats((prev) => {
@@ -140,6 +145,12 @@ export default function ComparissonTeams({ teams, reset }) {
             )}
           </div>
           <h2>List of Previous Games</h2>
+          {error && (
+            <h2>
+              Sorry, but we do not have information about this two teams playing
+              with each other
+            </h2>
+          )}
           {games.length !== 0 &&
             games.map((game) => {
               return (
